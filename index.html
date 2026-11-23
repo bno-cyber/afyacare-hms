@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AfyaCare Hospital Management System</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- STAFF LOGIN OVERLAY -->
+  <div id="login-screen" class="login-overlay">
+    <div class="login-box">
+      <div class="brand-header">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="2" y="2" width="20" height="20" rx="5" fill="#0284c7" />
+          <path d="M12 7V17M7 12H17" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+        </svg>
+        <h2>AfyaCare HMS</h2>
+      </div>
+      <p class="subtitle">Sign in with your staff email and password</p>
+      <form id="login-form">
+        <label for="login-email">Staff Email</label>
+        <input type="email" id="login-email" placeholder="e.g., admin@afyacare.co.ke" required />
+
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" placeholder="Enter password" required />
+
+        <div id="login-error" class="error-text" style="display: none;"></div>
+        <button type="submit" class="btn-primary">Sign In</button>
+      </form>
+
+      <div class="demo-creds">
+        <strong>Starter Accounts (for testing):</strong><br />
+        Admin: <code>admin@afyacare.co.ke</code> / <code>Admin@123</code><br />
+        Doctor: <code>doctor@afyacare.co.ke</code> / <code>Doc@123</code><br />
+        Nurse: <code>nurse@afyacare.co.ke</code> / <code>Nurse@123</code><br />
+        Reception: <code>reception@afyacare.co.ke</code> / <code>Rec@123</code><br />
+        Pharmacist: <code>pharmacist@afyacare.co.ke</code> / <code>Pharm@123</code><br />
+        Lab Tech: <code>lab@afyacare.co.ke</code> / <code>Lab@123</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APPLICATION SHELL -->
+  <div class="app-container" id="app-shell" style="display: none;">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <h2>AfyaCare HMS</h2>
+        <span id="current-user-badge">Logged in: Guest</span>
+      </div>
+      <nav>
+        <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
+        <button class="nav-btn" data-tab="patients">Patient Registration &amp; OPD</button>
+        <button class="nav-btn" data-tab="wards">Inpatient Wards &amp; Beds</button>
+        <button class="nav-btn" data-tab="clinical">EHR, Lab &amp; Pharmacy</button>
+        <button class="nav-btn" data-tab="lab">Laboratory</button>
+        <button class="nav-btn" data-tab="pharmacy">Pharmacy</button>
+        <button class="nav-btn" data-tab="staff">Staff Accounts</button>
+        <button class="nav-btn" data-tab="billing">Billing &amp; Receipts</button>
+      </nav>
+      <button id="logout-btn" class="btn-logout">Switch Role / Logout</button>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="main-content">
+      <header class="topbar">
+        <h1 id="page-title">Hospital Dashboard</h1>
+      </header>
+
+      <!-- TAB 1: DASHBOARD -->
+      <section id="dashboard" class="tab-section active">
+        <div class="stats-grid" id="dashboard-stats"></div>
+      </section>
+
+      <!-- TAB 2: PATIENT REGISTRATION & OPD -->
+      <section id="patients" class="tab-section">
+        <div class="two-col">
+          <div class="card" id="registration-card">
+            <h3>Register New Patient</h3>
+            <form id="patient-form">
+              <label for="p-name">Full Name</label>
+              <input type="text" id="p-name" placeholder="e.g., Wanjiku Kamau" required />
+
+              <label for="p-age">Age</label>
+              <input type="number" id="p-age" min="0" max="120" placeholder="e.g., 32" required />
+
+              <label for="p-gender">Gender</label>
+              <select id="p-gender">
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Other">Other</option>
+              </select>
+
+              <label for="p-phone">Phone Number</label>
+              <input type="text" id="p-phone" placeholder="e.g., 0712345678" required />
+
+              <label for="p-dept">Department / Triage</label>
+              <select id="p-dept">
+                <option value="General OPD">General OPD (Consultation: KES 1,500)</option>
+                <option value="Pediatrics">Pediatrics (Consultation: KES 2,000)</option>
+                <option value="Maternity">Maternity (Consultation: KES 2,500)</option>
+                <option value="Emergency">Emergency / Casualty (Fee: KES 3,000)</option>
+              </select>
+
+              <label for="p-vitals">Initial Vitals (BP / Temp)</label>
+              <input type="text" id="p-vitals" placeholder="e.g., BP 120/80, Temp 36.8°C" required />
+
+              <button type="submit" class="btn-primary">Register &amp; Add to Queue</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>Registered Patients &amp; OPD Queue</h3>
+            <div class="filter-bar">
+              <label for="opd-search" class="sr-only">Search OPD Patients</label>
+              <input type="text" id="opd-search" placeholder="Search by name or phone..." />
+              <label for="opd-status-filter" class="sr-only">Filter OPD Status</label>
+              <select id="opd-status-filter">
+                <option value="All">All Statuses</option>
+                <option value="Waiting">Waiting</option>
+                <option value="Consulted">Consulted</option>
+                <option value="Admitted">Admitted</option>
+                <option value="Discharged">Discharged</option>
+              </select>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Dept</th>
+                  <th>Vitals</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="patients-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: INPATIENT WARDS & BEDS -->
+      <section id="wards" class="tab-section">
+        <div class="card">
+          <h3>Inpatient Wards &amp; Bed Allocation</h3>
+          <div id="wards-grid" class="wards-grid"></div>
+        </div>
+      </section>
+
+      <!-- TAB 4: EHR, LAB & PHARMACY ORDERS -->
+      <section id="clinical" class="tab-section">
+        <div class="two-col">
+          <div class="card">
+            <h3>Doctor History Taking, Consultation, Lab &amp; Rx</h3>
+            <form id="clinical-form">
+              <label for="clinical-patient-select">Select Registered Patient</label>
+              <select id="clinical-patient-select" required></select>
+
+              <label for="history-complaint">Chief Complaint</label>
+              <input type="text" id="history-complaint" placeholder="e.g., Fever and headache for 3 days" required />
+
+              <label for="history-hpi">History of Presenting Illness (HPI)</label>
+              <textarea id="history-hpi" rows="2" placeholder="Onset, duration, progression, associated symptoms..." required></textarea>
+
+              <label for="history-pmh">Past Medical / Surgical History &amp; Allergies</label>
+              <input type="text" id="history-pmh" placeholder="e.g., No known allergies; no chronic illness" />
+
+              <label for="clinical-diagnosis">Clinical Diagnosis / Notes</label>
+              <textarea id="clinical-diagnosis" rows="2" placeholder="Working diagnosis and doctor notes..." required></textarea>
+
+              <label for="clinical-lab">Request Lab Test (Sent to Lab Tech)</label>
+              <select id="clinical-lab">
+                <option value="None|0">None</option>
+                <option value="Full Hemogram (CBC)|1200">Full Hemogram (CBC) - KES 1,200</option>
+                <option value="Malaria &amp; Typhoid Screen|900">Malaria &amp; Typhoid Screen - KES 900</option>
+                <option value="Urinalysis|600">Urinalysis - KES 600</option>
+                <option value="Blood Sugar (RBS)|500">Blood Sugar (RBS) - KES 500</option>
+              </select>
+
+              <label for="clinical-rx">Prescribe Medication (Sent to Pharmacist)</label>
+              <select id="clinical-rx"></select>
+
+              <button type="submit" class="btn-primary">Save History &amp; Send Requests</button>
+              <button type="button" id="print-history-btn" class="btn-secondary">Print History Sheet</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>Electronic Health Records (EHR) &amp; Lab Reports</h3>
+            <div id="ehr-records-list" class="ehr-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: LABORATORY (LAB TECH) -->
+      <section id="lab" class="tab-section">
+        <div class="card">
+          <h3>Doctor Lab Requests &amp; Results Dispatch</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Patient</th>
+                <th>Requested By</th>
+                <th>Test Ordered</th>
+                <th>Status</th>
+                <th>Result &amp; Actions</th>
+              </tr>
+            </thead>
+            <tbody id="lab-requests-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 6: PHARMACY (PHARMACIST) -->
+      <section id="pharmacy" class="tab-section">
+        <div class="card" style="margin-bottom: 20px;">
+          <h3>Prescriptions Sent by Doctor</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Rx ID</th>
+                <th>Patient</th>
+                <th>Prescribed By</th>
+                <th>Medication</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="rx-queue-body"></tbody>
+          </table>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <h3>Pharmacist Stock &amp; Inventory Control</h3>
+            <form id="restock-form">
+              <label for="restock-med-select">Restock Existing Medication</label>
+              <select id="restock-med-select"></select>
+
+              <label for="restock-qty">Units / Packs to Add</label>
+              <input type="number" id="restock-qty" min="1" max="500" value="20" required />
+
+              <button type="submit" class="btn-primary">Add Stock</button>
+            </form>
+
+            <hr style="margin: 18px 0; border: 0; border-top: 1px solid #e2e8f0;" />
+
+            <form id="add-med-form">
+              <h4>Add New Medication to Stock</h4>
+              <label for="new-med-name">Medication Name</label>
+              <input type="text" id="new-med-name" placeholder="e.g., Azithromycin 500mg (Pack)" required />
+
+              <label for="new-med-price">Unit Price (KES)</label>
+              <input type="number" id="new-med-price" min="1" placeholder="e.g., 750" required />
+
+              <label for="new-med-stock">Opening Stock</label>
+              <input type="number" id="new-med-stock" min="0" value="25" required />
+
+              <button type="submit" class="btn-primary">Add Medication</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>Current Pharmacy Stock Levels</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Medication</th>
+                  <th>Unit Price (KES)</th>
+                  <th>Stock Left</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="pharmacy-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7: STAFF ACCOUNTS (ADMIN ONLY) -->
+      <section id="staff" class="tab-section">
+        <div class="card" style="margin-top: 20px;">
+          <h3>Hospital Data Management (JSON Backup &amp; Reset)</h3>
+          <p class="subtitle">Export a full JSON backup of patients,EHR, lab requests, pharmacy stock,billing and staff from a saved backup file.</p>
+          <div class="filter-bar">
+            <button type="button" id="export-json-btn" class="btn-small">Download JSON Backup</button>
+            <label for="import-json-input" class="btn-small" style="display: inline-block; text-align: center;">
+              Restore from JSON
+              <input type="file" id="import-json-input" accept=".json,application/json" style="display: none;" />
+            </label>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <h3>Create Staff Account</h3>
+            <form id="create-staff-form">
+              <label for="staff-name">Full Name</label>
+              <input type="text" id="staff-name" placeholder="e.g., Nurse Grace Mwangi" required />
+
+              <label for="staff-email">Work Email</label>
+              <input type="email" id="staff-email" placeholder="e.g., grace@afyacare.co.ke" required />
+
+              <label for="staff-role">Role</label>
+              <select id="staff-role">
+                <option value="Doctor">Doctor (History, EHR, Lab &amp; Rx Orders)</option>
+                <option value="Nurse">Nurse (Triage &amp; Wards)</option>
+                <option value="Reception">Reception (OPD Registration &amp; Billing)</option>
+                <option value="Pharmacist">Pharmacist (Rx Queue &amp; Stock)</option>
+                <option value="Lab Tech">Lab Tech (Lab Requests &amp; Results)</option>
+                <option value="Admin">Hospital Admin / Billing</option>
+              </select>
+
+              <label for="staff-password">Initial Password (min 6 chars)</label>
+              <input type="password" id="staff-password" minlength="6" placeholder="Set temporary password" required />
+
+              <button type="submit" class="btn-primary">Create Account</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>Registered Hospital Staff</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="staff-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 8: BILLING & RECEIPTS -->
+      <section id="billing" class="tab-section">
+        <div class="card">
+          <h3>Patient Invoices &amp; Payment Settlement</h3>
+          <div class="filter-bar">
+            <label for="billing-search" class="sr-only">Search Invoices</label>
+            <input type="text" id="billing-search" placeholder="Search invoice by patient name..." />
+            <label for="billing-status-filter" class="sr-only">Filter Invoice Status</label>
+            <select id="billing-status-filter">
+              <option value="All">All Invoices</option>
+              <option value="Unpaid">Unpaid</option>
+              <option value="Paid">Paid</option>
+            </select>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Breakdown</th>
+                <th>Total (KES)</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="billing-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- PRINTABLE RECEIPT / HISTORY / LAB MODAL -->
+  <div id="receipt-modal" class="modal-backdrop" style="display: none;">
+    <div class="receipt-paper" id="receipt-content"></div>
+    <div class="receipt-actions no-print">
+      <button type="button" onclick="window.print()" class="btn-primary">Print Document</button>
+      <button type="button" onclick="closeReceipt()" class="btn-danger-outline">Close</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
